@@ -243,8 +243,8 @@ function Todo() {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100">
-      <h1 className="text-7xl text-red-800 text-center mb-6">todos</h1>
-      <div className="bg-white shadow-md rounded-lg p-8 w-[500px]">
+      <h1 className="md:text-7xl text-5xl text-red-800 text-center mb-6">todos</h1>
+      <div className="bg-white shadow-md rounded-lg p-8 md:w-[500px]">
         <div className="flex mb-4 relative">
           {allData.length > 0 && (
             <div className="flex flex-col items-center justify-center b mr-1 px-2">
@@ -307,7 +307,7 @@ function Todo() {
           ))}
         </div>
 
-        <div className="flex justify-between items-center mt-4 text-gray-600">
+        <div className="md:flex justify-between items-center mt-4 text-gray-600">
           <button className="text-sm cursor-default">
             {allData.filter(item => !item.completed).length} item(s) left
           </button>
