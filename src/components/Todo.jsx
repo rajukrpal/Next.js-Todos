@@ -1,5 +1,5 @@
 
-// "use client"
+// "use client";
 // import React, { useEffect, useState } from 'react';
 
 // function Todo() {
@@ -13,6 +13,12 @@
 //       setAllData([...allData, { text: inputField, completed: false }]);
 //       setInputField("");
 //       setSelectAll(false);
+//     }
+//   };
+
+//   const handleKeyDown = (e) => {
+//     if (e.key === "Enter") {
+//       addTodo();
 //     }
 //   };
 
@@ -57,28 +63,25 @@
 //       <h1 className="text-7xl text-red-800 text-center mb-6">todos</h1>
 //       <div className="bg-white shadow-md rounded-lg p-8 w-[500px]">
 //         <div className="flex mb-4 relative">
+
+//           {allData.length > 0 && (
+//             <div className="flex flex-col items-center justify-center b mr-1 px-2">
+//               <input
+//                 className="mr-"
+//                 type="checkbox"
+//                 checked={selectAll}
+//                 onChange={toggleSelectAll}
+//               />
+//             </div>
+//           )}
 //           <input
 //             className="border border-gray-300 w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 //             type="text"
 //             placeholder="What needs to be done?"
 //             value={inputField}
 //             onChange={(e) => setInputField(e.target.value)}
+//             onKeyDown={handleKeyDown}
 //           />
-//           <button
-//             className="ml-4 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-//             onClick={addTodo}
-//           >
-//             Add
-//           </button>
-//           <div className="flex flex-col items-center justify-center border b ml-4  px-4">
-//             <label htmlFor="All">All</label>
-//             <input
-//               className="mr-2"
-//               type="checkbox"
-//               checked={selectAll}
-//               onChange={toggleSelectAll}
-//             />
-//           </div>
 //         </div>
 
 //         <div className="flex flex-col space-y-2">
@@ -139,6 +142,7 @@
 
 // export default Todo;
 
+
 "use client";
 import React, { useEffect, useState } from 'react';
 
@@ -147,6 +151,8 @@ function Todo() {
   const [allData, setAllData] = useState([]);
   const [filter, setFilter] = useState("All");
   const [selectAll, setSelectAll] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
+  const [editText, setEditText] = useState("");
 
   const addTodo = () => {
     if (inputField.trim() !== "") {
@@ -158,7 +164,11 @@ function Todo() {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      addTodo();
+      if (editIndex !== null) {
+        saveEdit();
+      } else {
+        addTodo();
+      }
     }
   };
 
@@ -194,6 +204,24 @@ function Todo() {
     return allData;
   };
 
+  const deleteItem = (index) => {
+    setAllData(allData.filter((_, i) => i !== index));
+  };
+
+  const editItem = (index) => {
+    setEditIndex(index);
+    setEditText(allData[index].text);
+  };
+
+  const saveEdit = () => {
+    const updatedData = allData.map((item, i) =>
+      i === editIndex ? { ...item, text: editText } : item
+    );
+    setAllData(updatedData);
+    setEditIndex(null);
+    setEditText("");
+  };
+
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(allData));
   }, [allData]);
@@ -203,23 +231,25 @@ function Todo() {
       <h1 className="text-7xl text-red-800 text-center mb-6">todos</h1>
       <div className="bg-white shadow-md rounded-lg p-8 w-[500px]">
         <div className="flex mb-4 relative">
+
+          {allData.length > 0 && (
+            <div className="flex flex-col items-center justify-center b mr-1 px-2">
+              <input
+                className="mr-"
+                type="checkbox"
+                checked={selectAll}
+                onChange={toggleSelectAll}
+              />
+            </div>
+          )}
           <input
             className="border border-gray-300 w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             type="text"
             placeholder="What needs to be done?"
-            value={inputField}
-            onChange={(e) => setInputField(e.target.value)}
+            value={editIndex !== null ? editText : inputField}
+            onChange={(e) => editIndex !== null ? setEditText(e.target.value) : setInputField(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <div className="flex flex-col items-center justify-center border b ml-4 px-4">
-            <label htmlFor="All">All</label>
-            <input
-              className="mr-2"
-              type="checkbox"
-              checked={selectAll}
-              onChange={toggleSelectAll}
-            />
-          </div>
         </div>
 
         <div className="flex flex-col space-y-2">
@@ -228,6 +258,7 @@ function Todo() {
               key={index}
               className={`flex items-center p-2 border border-gray-300 rounded-md ${item.completed ? "text-gray-400" : ""
                 }`}
+              onDoubleClick={() => editItem(index)}
             >
               <input
                 className="mr-3"
@@ -238,6 +269,12 @@ function Todo() {
               <div className={`flex-1 ${item.completed ? "line-through" : ""}`}>
                 {item.text}
               </div>
+              <button
+                className="ml-4 text-red-500"
+                onClick={() => deleteItem(index)}
+              >
+                X
+              </button>
             </div>
           ))}
         </div>
