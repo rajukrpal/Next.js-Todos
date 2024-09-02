@@ -142,7 +142,6 @@
 
 // export default Todo;
 
-
 "use client";
 import React, { useEffect, useState } from 'react';
 
@@ -214,12 +213,28 @@ function Todo() {
   };
 
   const saveEdit = () => {
-    const updatedData = allData.map((item, i) =>
-      i === editIndex ? { ...item, text: editText } : item
-    );
-    setAllData(updatedData);
+    if (editText.trim() !== "") {
+      const updatedData = allData.map((item, i) =>
+        i === editIndex ? { ...item, text: editText } : item
+      );
+      setAllData(updatedData);
+    }
     setEditIndex(null);
     setEditText("");
+  };
+
+  // const saveEdit = () => {
+  //   const updatedData = allData.map((item, i) =>
+  //     i === editIndex ? { ...item, text: editText } : item
+  //   );
+  //   setAllData(updatedData);
+  //   setEditIndex(null);
+  //   setEditText("");
+  // };
+
+
+  const handleBlur = () => {
+    saveEdit();
   };
 
   useEffect(() => {
@@ -231,7 +246,6 @@ function Todo() {
       <h1 className="text-7xl text-red-800 text-center mb-6">todos</h1>
       <div className="bg-white shadow-md rounded-lg p-8 w-[500px]">
         <div className="flex mb-4 relative">
-
           {allData.length > 0 && (
             <div className="flex flex-col items-center justify-center b mr-1 px-2">
               <input
@@ -246,8 +260,8 @@ function Todo() {
             className="border border-gray-300 w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             type="text"
             placeholder="What needs to be done?"
-            value={editIndex !== null ? editText : inputField}
-            onChange={(e) => editIndex !== null ? setEditText(e.target.value) : setInputField(e.target.value)}
+            value={inputField}
+            onChange={(e) => setInputField(e.target.value)}
             onKeyDown={handleKeyDown}
           />
         </div>
@@ -258,7 +272,6 @@ function Todo() {
               key={index}
               className={`flex items-center p-2 border border-gray-300 rounded-md ${item.completed ? "text-gray-400" : ""
                 }`}
-              onDoubleClick={() => editItem(index)}
             >
               <input
                 className="mr-3"
@@ -266,9 +279,24 @@ function Todo() {
                 checked={item.completed}
                 onChange={() => toggleComplete(index)}
               />
-              <div className={`flex-1 ${item.completed ? "line-through" : ""}`}>
-                {item.text}
-              </div>
+              {editIndex === index ? (
+                <input
+                  className="flex-1 border-b-2 border-gray-400 focus:outline-none focus:border-blue-500"
+                  type="text"
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onBlur={handleBlur}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
+                />
+              ) : (
+                <div
+                  className={`flex-1 ${item.completed ? "line-through" : ""}`}
+                  onDoubleClick={() => editItem(index)}
+                >
+                  {item.text}
+                </div>
+              )}
               <button
                 className="ml-4 text-red-500"
                 onClick={() => deleteItem(index)}
